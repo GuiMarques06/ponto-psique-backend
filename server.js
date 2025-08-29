@@ -6,23 +6,28 @@ const cors = require('cors');
 const app = express();
 
 app.use(cors());
-app.use(express.json());
+// Aumenta o limite do corpo da requisição para 10mb
+app.use(express.json({ limit: '10mb' }));
 
 mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log('MongoDB conectado com sucesso.'))
     .catch(err => console.error('Erro de conexão com MongoDB:', err));
 
+// Adiciona campos para o nome e os dados do ficheiro
 const contentSchema = new mongoose.Schema({
     theme: { type: String, required: true },
     category: { type: String, required: true },
     type: { type: String, required: true },
     title: { type: String, required: true },
     description: { type: String, required: true },
-    fileUrl: String,
+    fileName: String, // Nome original do ficheiro
+    fileData: String, // Conteúdo do ficheiro em Base64
     linkUrl: String
 });
 
 const Content = mongoose.model('Content', contentSchema);
+
+// --- As rotas da API (nenhuma mudança de lógica necessária aqui) ---
 
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
@@ -80,5 +85,5 @@ app.delete('/api/content/:id', async (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-    console.log(`Servidor rodando na porta ${PORT}`);
+    console.log(`Servidor a rodar na porta ${PORT}`);
 });
